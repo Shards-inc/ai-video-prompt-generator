@@ -85,4 +85,49 @@ export async function getUser(id: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Prompt template queries
+export async function getPromptTemplates() {
+  const db = await getDb();
+  if (!db) return [];
+  const { promptTemplates } = await import("../drizzle/schema");
+  return db.select().from(promptTemplates).where(eq(promptTemplates.isPublic, "true"));
+}
+
+export async function getPromptTemplateById(id: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const { promptTemplates } = await import("../drizzle/schema");
+  const result = await db.select().from(promptTemplates).where(eq(promptTemplates.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createPromptTemplate(template: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { promptTemplates } = await import("../drizzle/schema");
+  await db.insert(promptTemplates).values(template);
+}
+
+// Generated prompt queries
+export async function getUserPrompts(userId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  const { generatedPrompts } = await import("../drizzle/schema");
+  const { desc } = await import("drizzle-orm");
+  return db.select().from(generatedPrompts).where(eq(generatedPrompts.userId, userId)).orderBy(desc(generatedPrompts.createdAt));
+}
+
+export async function createGeneratedPrompt(prompt: any) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { generatedPrompts } = await import("../drizzle/schema");
+  await db.insert(generatedPrompts).values(prompt);
+}
+
+export async function deleteGeneratedPrompt(id: string, userId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const { generatedPrompts } = await import("../drizzle/schema");
+  const { and } = await import("drizzle-orm");
+  await db.delete(generatedPrompts).where(and(eq(generatedPrompts.id, id), eq(generatedPrompts.userId, userId)));
+}
