@@ -30,6 +30,24 @@ export const appRouter = router({
     }),
   }),
 
+  // Video generation router
+  video: router({
+    generate: protectedProcedure
+      .input(
+        z.object({
+          script: z.string(),
+          topic: z.string(),
+          vibe: z.string(),
+          targetAudience: z.string(),
+          platform: z.enum(["youtube", "instagram", "tiktok"]),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { generateVideo } = await import("./invideo");
+        return generateVideo(input);
+      }),
+  }),
+
   // Generated prompts router
   prompts: router({
     list: protectedProcedure.query(async ({ ctx }) => {

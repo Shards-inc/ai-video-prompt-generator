@@ -4,11 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { Sparkles, Video, Youtube } from "lucide-react";
+import { Film, Sparkles, Video, Youtube } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import PromptGenerator from "./PromptGenerator";
 import SavedPrompts from "./SavedPrompts";
+import VideoGenerator from "./VideoGenerator";
 
 export default function Home() {
   const { user, loading, isAuthenticated, logout } = useAuth();
@@ -89,10 +90,14 @@ export default function Home() {
         <div className="container">
           <div className="max-w-6xl mx-auto">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
+              <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 mb-8">
                 <TabsTrigger value="generate" className="gap-2">
                   <Sparkles className="w-4 h-4" />
-                  Generate
+                  Prompts
+                </TabsTrigger>
+                <TabsTrigger value="video" className="gap-2" disabled={!isAuthenticated}>
+                  <Film className="w-4 h-4" />
+                  Generate Video
                 </TabsTrigger>
                 <TabsTrigger value="saved" className="gap-2" disabled={!isAuthenticated}>
                   <Video className="w-4 h-4" />
@@ -102,6 +107,21 @@ export default function Home() {
 
               <TabsContent value="generate" className="space-y-6">
                 <PromptGenerator />
+              </TabsContent>
+
+              <TabsContent value="video">
+                {isAuthenticated ? (
+                  <VideoGenerator />
+                ) : (
+                  <Card>
+                    <CardContent className="py-12 text-center">
+                      <p className="text-muted-foreground mb-4">Sign in to generate videos</p>
+                      <Button asChild>
+                        <a href={getLoginUrl()}>Sign In</a>
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )}
               </TabsContent>
 
               <TabsContent value="saved">
